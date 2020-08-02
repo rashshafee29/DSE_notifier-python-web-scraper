@@ -19,6 +19,7 @@ def scrap(request):
     soup = BeautifulSoup(res.text, 'lxml')
     # print(soup.prettify())
     list1 = []
+
     k = soup.find_all('div', {'class': 'Scroller'})
     for quote in k:
         tds = (quote.findAll('td'))
@@ -43,5 +44,27 @@ def scrap(request):
         percentageValue.append(m_s.split(" ")[3])
 
     allList  = zip(name, current, changeValue, percentageValue)
+
+
+    # Getting time and market close or open information
+    isStart = 0
+    isClosed = False
+    time = soup.find_all('span', {'class': 'time'})
+    # print(time)
+    time_list = []
+    for time_i in time:
+        # print(time_i.text)
+        time_list.append(time_i.text)
+    timeNow = time_list[0]
+    if time_list[2] == 'Market Status: Closed':
+        isClosed = True
+        if time_list[1].split(" ")[3] == 'PM':
+            isStart = 1
+        else:
+            isStart = 0
+
+    if isClosed:
+        print(timeNow)
+        print(isStart)
     return render(request, 'home/index.html', {"allList": allList})
 
